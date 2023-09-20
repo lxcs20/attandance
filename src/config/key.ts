@@ -18,6 +18,11 @@ const COM_LNG: number = process.env.COM_LNG as unknown as number
 const COM_DIST: number = process.env.COM_DIST as unknown as number
 const R: number = process.env.R as unknown as number
 
+const LOCKAPI: string = process.env.LOCKAPI
+const LOCK_CLIENTID: string = process.env.CLIENTID
+const LOCKID: string = process.env.LOCKID
+
+
 export {
     PORT,
     DB_URI,
@@ -30,5 +35,9 @@ export {
     COM_LAT,
     COM_LNG,
     COM_DIST,
-    R
+    R,
+
+    LOCKAPI,
+    LOCK_CLIENTID,
+    LOCKID,
 }

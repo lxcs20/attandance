@@ -8,13 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateProfile = exports.MyAccount = exports.GetOne = exports.GetAll = exports.Delete = exports.ForgotPassword = exports.ChangePassword = exports.Update = exports.Login = exports.Register = void 0;
 const base_servics_1 = require("../../service/base.servics");
 const db_1 = require("../../config/db");
 const private_1 = require("../../service/private");
+const key_1 = require("../../config/key");
+const axios_1 = __importDefault(require("axios"));
 class Register {
-    constructor() { }
     init(params) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -32,8 +36,8 @@ class Register {
         }));
     }
     validateParams(params) {
-        const { firstname, lastname, phonenumber, password, email, profile } = params;
-        const validate = (0, base_servics_1.Validator)({ firstname, lastname, phonenumber, password, email });
+        const { firstname, lastname, phonenumber, password, email, profile, startDate, endDate } = params;
+        const validate = (0, base_servics_1.Validator)({ firstname, lastname, phonenumber, password, email, startDate, endDate });
         if (validate != base_servics_1.Message.SUCCESS)
             return 'invalid paramiter: ' + validate;
         this.firstname = firstname;
@@ -42,6 +46,9 @@ class Register {
         this.password = password;
         this.email = email;
         this.profile = profile || '';
+        this.startDate = new Date(startDate).getTime();
+        this.endDate = new Date(endDate).getTime();
+        // console.log(`start: ${this.startDate}, end: ${this.endDate}`)
         return base_servics_1.Message.SUCCESS;
     }
     register() {
@@ -70,7 +77,16 @@ class Register {
                 let register = yield db_1.UserEntity.create(data);
                 if (!register)
                     return resolve(base_servics_1.Message.FAILE);
-                this.response.data = [];
+                const lockApi = `${key_1.LOCKAPI}/keyboardPwd/get`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&keyboardPwdType=3&keyboardPwdName=${register.email}&startDate=${this.startDate}&endDate=${this.endDate}&date=${Date.now()}`;
+                const passcode = yield axios_1.default.post(`${lockApi}${qry}`);
+                const lockdata = {
+                    userUuid: register.uuid,
+                    passcodeId: passcode.data.keyboardPwdId
+                };
+                yield db_1.LockEntity.create(lockdata);
+                this.response.data = [passcode.data];
                 this.response.message = base_servics_1.Message.SUCCESS;
                 resolve(base_servics_1.Message.SUCCESS);
             }
@@ -365,7 +381,6 @@ class Delete {
 }
 exports.Delete = Delete;
 class GetAll {
-    constructor() { }
     init() {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -389,7 +404,12 @@ class GetAll {
                 let users = yield db_1.UserEntity.findAll({
                     where: {
                         isActive: true
-                    }
+                    },
+                    include: [
+                        {
+                            model: db_1.LockEntity,
+                        }
+                    ]
                 });
                 if (!users)
                     return resolve(base_servics_1.Message.NOTFOUND + ' user');

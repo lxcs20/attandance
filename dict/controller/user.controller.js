@@ -19,7 +19,7 @@ class UserController {
                 const params = req.body;
                 const func = new user_api_1.Register();
                 func.init(params).then(run => {
-                    console.log(`run register: `, run);
+                    // console.log(`run register: `, run)
                     if (run.message != base_servics_1.Message.SUCCESS)
                         throw new Error(run);
                     return (0, base_servics_1.ResClient)(run.data, base_servics_1.Message.SUCCESS, 201, res);

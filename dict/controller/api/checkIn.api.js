@@ -17,6 +17,8 @@ const sequelize_1 = require("sequelize");
 const db_1 = require("../../config/db");
 const base_servics_1 = require("../../service/base.servics");
 const sequelize_2 = __importDefault(require("sequelize"));
+const key_1 = require("../../config/key");
+const axios_1 = __importDefault(require("axios"));
 class CheckIn {
     constructor(userUuid) {
         this.userUuid = userUuid;
@@ -112,8 +114,15 @@ class GetCheckAll {
                     return resolve(base_servics_1.Message.FAILE);
                 }
                 checkin = JSON.parse(JSON.stringify(checkin));
+                const lockApi = `${key_1.LOCKAPI}/lockRecord/list`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const pageNo = 1;
+                const pageSize = 30;
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&pageNo=1&pageSize=20&date=${Date.now()}`;
+                const lockRecord = yield axios_1.default.get(`${lockApi}${qry}`);
+                console.log(lockRecord.data);
                 this.response.message = base_servics_1.Message.SUCCESS;
-                this.response.data = checkin;
+                this.response.data = [checkin, lockRecord.data];
                 resolve(base_servics_1.Message.SUCCESS);
             }
             catch (error) {
@@ -170,7 +179,15 @@ class GetCheckByDate {
                 if (!checkin)
                     return resolve(base_servics_1.Message.NOTFOUND);
                 // checkin = JSON.parse(JSON.stringify(checkin));
-                this.response.data = checkin;
+                const lockApi = `${key_1.LOCKAPI}/lockRecord/list`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const pageNo = 1;
+                const pageSize = 30;
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&startDate=${startdate.getTime()}&endDate${enddate.getTime()}&pageNo=1&pageSize=30&date=${Date.now()}`;
+                // console.log('qry: ', qry)
+                const lockRecord = yield axios_1.default.get(`${lockApi}${qry}`);
+                // console.log(lockRecord.data)
+                this.response.data = [checkin, lockRecord.data];
                 this.response.message = base_servics_1.Message.SUCCESS;
                 resolve(base_servics_1.Message.SUCCESS);
             }
@@ -242,7 +259,14 @@ class GetCheckByMonth {
                 if (!checkin)
                     return resolve(base_servics_1.Message.NOTFOUND);
                 // checkin = JSON.parse(JSON.stringify(checkin));
-                this.response.data = checkin;
+                const lockApi = `${key_1.LOCKAPI}/lockRecord/list`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const pageNo = 1;
+                const pageSize = 30;
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&startDate=${startdate.getTime()}&endDate${enddate.getTime()}&pageNo=1&pageSize=30&date=${Date.now()}`;
+                // console.log('qry: ', qry)
+                const lockRecord = yield axios_1.default.get(`${lockApi}${qry}`);
+                this.response.data = [checkin, lockRecord.data];
                 this.response.message = base_servics_1.Message.SUCCESS;
                 resolve(base_servics_1.Message.SUCCESS);
             }
@@ -293,7 +317,7 @@ class GetCheckThreeMonth {
                 const date = new Date(this.year, this.month, 1);
                 let startdate = new Date(this.year, this.month, 1, 0, 0, 0, 0);
                 let enddate = new Date(date.getFullYear(), date.getMonth() + 3, 0, 23, 59, 59, 999);
-                console.log(`${startdate}, ${enddate}`);
+                // console.log(`${startdate}, ${enddate}`)
                 let checkin = yield db_1.UserEntity.findAll({
                     where: {
                         isActive: true
@@ -316,7 +340,14 @@ class GetCheckThreeMonth {
                 if (!checkin)
                     return resolve(base_servics_1.Message.NOTFOUND);
                 // checkin = JSON.parse(JSON.stringify(checkin));
-                this.response.data = checkin;
+                const lockApi = `${key_1.LOCKAPI}/lockRecord/list`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const pageNo = 1;
+                const pageSize = 30;
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&startDate=${startdate.getTime()}&endDate${enddate.getTime()}&pageNo=1&pageSize=30&date=${Date.now()}`;
+                // console.log('qry: ', qry)
+                const lockRecord = yield axios_1.default.get(`${lockApi}${qry}`);
+                this.response.data = [checkin, lockRecord.data];
                 this.response.message = base_servics_1.Message.SUCCESS;
                 resolve(base_servics_1.Message.SUCCESS);
             }
@@ -354,9 +385,11 @@ class GetCheckByYear {
                 const date = new Date(this.year, 0, 1);
                 let startdate = new Date(this.year, 0, 1, 0, 0, 0, 0);
                 let enddate = new Date(this.year, 11, 0, 23, 59, 59, 999);
-                console.log(`st: ${startdate}, en: ${enddate}`);
+                // console.log(`st: ${startdate}, en: ${enddate}`)
                 let checkin = yield db_1.UserEntity.findAll({
-                    where: {},
+                    where: {
+                        isActive: true
+                    },
                     attributes: ['uuid', 'firstname', 'lastname', 'profile'],
                     include: [
                         {
@@ -375,7 +408,14 @@ class GetCheckByYear {
                 if (!checkin)
                     return resolve(base_servics_1.Message.NOTFOUND);
                 // checkin = JSON.parse(JSON.stringify(checkin));
-                this.response.data = checkin;
+                const lockApi = `${key_1.LOCKAPI}/lockRecord/list`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const pageNo = 1;
+                const pageSize = 30;
+                const qry = `?clientId=${key_1.LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${key_1.LOCKID}&startDate=${startdate.getTime()}&endDate${enddate.getTime()}&pageNo=1&pageSize=30&date=${Date.now()}`;
+                // console.log('qry: ', qry)
+                const lockRecord = yield axios_1.default.get(`${lockApi}${qry}`);
+                this.response.data = [checkin, lockRecord.data];
                 this.response.message = base_servics_1.Message.SUCCESS;
                 resolve(base_servics_1.Message.SUCCESS);
             }

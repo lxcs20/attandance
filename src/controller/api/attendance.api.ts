@@ -111,7 +111,6 @@ export class RateOfAttend {
                     ],
                     group: ['user.uuid', 'attandances.uuid']
                 });
-
                 if (!attend) {
                     return resolve(Message.FAILE)
                 }

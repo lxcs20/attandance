@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.R = exports.COM_DIST = exports.COM_LNG = exports.COM_LAT = exports.SECRET_KEY = exports.DB_USERNAME = exports.DB_PASSWORD = exports.DB_NAME = exports.DB_HOST = exports.DB_PORT = exports.DB_URI = exports.PORT = void 0;
+exports.LOCKID = exports.LOCK_CLIENTID = exports.LOCKAPI = exports.R = exports.COM_DIST = exports.COM_LNG = exports.COM_LAT = exports.SECRET_KEY = exports.DB_USERNAME = exports.DB_PASSWORD = exports.DB_NAME = exports.DB_HOST = exports.DB_PORT = exports.DB_URI = exports.PORT = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const DB_URI = process.env.DB_URI;
@@ -30,3 +30,9 @@ const COM_DIST = process.env.COM_DIST;
 exports.COM_DIST = COM_DIST;
 const R = process.env.R;
 exports.R = R;
+const LOCKAPI = process.env.LOCKAPI;
+exports.LOCKAPI = LOCKAPI;
+const LOCK_CLIENTID = process.env.CLIENTID;
+exports.LOCK_CLIENTID = LOCK_CLIENTID;
+const LOCKID = process.env.LOCKID;
+exports.LOCKID = LOCKID;

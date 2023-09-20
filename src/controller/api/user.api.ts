@@ -1,9 +1,11 @@
 import { Role } from './../../model/base.model';
 import { Message, Validator } from "../../service/base.servics";
-import { UserEntity } from "../../config/db";
+import { LockEntity, UserEntity } from "../../config/db";
 import { ComparePassword, EncryptPassword, SignToken } from "../../service/private";
 import { IResponse } from '../base.controller';
 import { where } from 'sequelize';
+import { LOCKAPI, LOCKID, LOCK_CLIENTID } from '../../config/key';
+import axios from 'axios';
 
 
 export class Register {
@@ -14,9 +16,10 @@ export class Register {
     private password: string;
     private email: string;
     private profile: string;
-    private response: any;
 
-    constructor() { }
+    private startDate: number;
+    private endDate: number;
+    private response: any;
 
     public init(params: any): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -35,8 +38,8 @@ export class Register {
     }
 
     private validateParams(params: any): string {
-        const { firstname, lastname, phonenumber, password, email, profile } = params;
-        const validate = Validator({ firstname, lastname, phonenumber, password, email })
+        const { firstname, lastname, phonenumber, password, email, profile, startDate, endDate } = params;
+        const validate = Validator({ firstname, lastname, phonenumber, password, email, startDate, endDate })
         if (validate != Message.SUCCESS) return 'invalid paramiter: ' + validate
 
         this.firstname = firstname;
@@ -44,7 +47,11 @@ export class Register {
         this.phonenumber = phonenumber;
         this.password = password;
         this.email = email;
-        this.profile = profile || ''
+        this.profile = profile || '';
+
+        this.startDate = new Date(startDate).getTime();
+        this.endDate = new Date(endDate).getTime();
+        // console.log(`start: ${this.startDate}, end: ${this.endDate}`)
         return Message.SUCCESS
     }
 
@@ -75,7 +82,18 @@ export class Register {
                 let register = await UserEntity.create(data);
                 if (!register) return resolve(Message.FAILE)
 
-                this.response.data = []
+                const lockApi = `${LOCKAPI}/keyboardPwd/get`;
+                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
+                const qry = `?clientId=${LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${LOCKID}&keyboardPwdType=3&keyboardPwdName=${register.email}&startDate=${this.startDate}&endDate=${this.endDate}&date=${Date.now()}`
+                const passcode = await axios.post(`${lockApi}${qry}`);
+
+                const lockdata = {
+                    userUuid: register.uuid,
+                    passcodeId: passcode.data.keyboardPwdId
+                }
+                await LockEntity.create(lockdata);
+
+                this.response.data = [passcode.data]
                 this.response.message = Message.SUCCESS
                 resolve(Message.SUCCESS)
             } catch (error) {
@@ -415,10 +433,7 @@ export class Delete {
 }
 
 export class GetAll {
-
     private response: any;
-
-    constructor() { }
 
     public init(): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -446,7 +461,12 @@ export class GetAll {
                     {
                         where: {
                             isActive: true
-                        }
+                        },
+                        include: [
+                            {
+                                model: LockEntity,
+                            }
+                        ]
                     }
                 )
                 if (!users) return resolve(Message.NOTFOUND + ' user');
@@ -578,9 +598,9 @@ export class UpdateProfile {
         return new Promise<any>(async (resolve, reject) => {
             try {
                 const validate = this.ValidateParams(params);
-                if(validate != Message.SUCCESS) throw new Error(validate);
+                if (validate != Message.SUCCESS) throw new Error(validate);
                 const run = await this.porcess();
-                if(run != Message.SUCCESS) throw new Error(run);
+                if (run != Message.SUCCESS) throw new Error(run);
                 resolve(this.response)
             } catch (error) {
                 resolve(error.message)

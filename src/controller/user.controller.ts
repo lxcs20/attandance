@@ -13,7 +13,7 @@ class UserController implements IUserController {
                 const params = req.body;
                 const func = new Register();
                 func.init(params).then(run => {
-                    console.log(`run register: `, run)
+                    // console.log(`run register: `, run)
                     if (run.message != Message.SUCCESS) throw new Error(run);
                     return ResClient(run.data, Message.SUCCESS, 201, res);
                 }).catch(error => {
