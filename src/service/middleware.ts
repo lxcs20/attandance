@@ -24,6 +24,9 @@ export const auth = (req: Request, res: Response, next: NextFunction): Promise<a
                 },
                 attributes: ['uuid', 'firstname', 'lastname', 'role']
             })
+            if(!user){
+                return ResClient([], Message.NOTFOUND + 'user', 404, res)
+            }
             user = JSON.parse(JSON.stringify(user));
             // console.log(`user middleware: `, user)
             const userdata = {

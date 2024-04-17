@@ -21,7 +21,7 @@ class Routes {
 
         // ----------------user
 
-        routes.post("/user/register", this.userController.register.bind(this.userController));
+        routes.post("/user/register", auth, admin, this.userController.register.bind(this.userController));
         routes.post("/user/login", this.userController.login.bind(this.userController));
         routes.post("/user/update", auth, this.userController.update.bind(this.userController));
         routes.post("/user/changepassword", auth, this.userController.changePassword.bind(this.userController));

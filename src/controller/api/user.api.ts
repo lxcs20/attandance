@@ -27,7 +27,7 @@ export class Register {
                 const validate = this.validateParams(params);
                 if (validate != Message.SUCCESS) throw new Error(validate);
 
-                const run = await this.register();
+                const run: any = this.register();
                 if (run != Message.SUCCESS) throw new Error(run);
 
                 resolve(this.response)
@@ -81,19 +81,9 @@ export class Register {
                 data.password = await EncryptPassword(this.password);
                 let register = await UserEntity.create(data);
                 if (!register) return resolve(Message.FAILE)
+                // register
 
-                const lockApi = `${LOCKAPI}/keyboardPwd/get`;
-                const accessToken = "942ae953feb3f5ebbd00d014f12c3604";
-                const qry = `?clientId=${LOCK_CLIENTID}&accessToken=${accessToken}&lockId=${LOCKID}&keyboardPwdType=3&keyboardPwdName=${register.email}&startDate=${this.startDate}&endDate=${this.endDate}&date=${Date.now()}`
-                const passcode = await axios.post(`${lockApi}${qry}`);
-
-                const lockdata = {
-                    userUuid: register.uuid,
-                    passcodeId: passcode.data.keyboardPwdId
-                }
-                await LockEntity.create(lockdata);
-
-                this.response.data = [passcode.data]
+                this.response.data = [register]
                 this.response.message = Message.SUCCESS
                 resolve(Message.SUCCESS)
             } catch (error) {

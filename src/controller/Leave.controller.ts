@@ -10,10 +10,10 @@ class LeaveController implements ILeaveController{
         return new Promise<any>(async (resolve, reject) => {
             try {
                 const userUuid = res.locals.user.uuid;
+                // console.log(res.locals)
                 const params = req.body;
                 const func = new LeaveRequest(userUuid);
                 func.init(params).then(run => {
-                    // console.log(run)
                     if (run.message !== Message.SUCCESS) throw new Error(run as any)
                     return ResClient(run.data, Message.SUCCESS, 201, res)
                 }).catch(err => {

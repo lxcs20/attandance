@@ -7,18 +7,18 @@ import { DB_URI, DB_NAME, DB_HOST, DB_PORT, DB_PASSWORD, DB_USERNAME } from "./k
 import sequelize, { Sequelize } from "sequelize";
 
 
-const db_Connection: Sequelize = new Sequelize(DB_URI)
-// const db_Connection: Sequelize = new sequelize
-// .Sequelize(
-//     DB_NAME,
-//     DB_USERNAME,
-//     DB_PASSWORD,
-//     {
-//         port: DB_PORT,
-//         host: DB_HOST,
-//         dialect: 'postgres'
-//     }
-// )
+// const db_Connection: Sequelize = new Sequelize(DB_URI)
+const db_Connection: Sequelize = new sequelize
+.Sequelize(
+    DB_NAME,
+    DB_USERNAME,
+    DB_PASSWORD,
+    {
+        port: DB_PORT,
+        host: DB_HOST,
+        dialect: 'postgres'
+    }
+)
 
 db_Connection.sync({alter: true});
 
